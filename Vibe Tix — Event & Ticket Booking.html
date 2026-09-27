@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vibe Tix</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#ff6ec4; --bg2:#7873f5; --bg3:#4ade80; --bg4:#ffd166;
+  --card:#ffffffee; --text:#1a1a2e; --sub:#5a5a72; --accent:#7873f5; --accent2:#ff6ec4;
+  --border:#00000014; --pill:#f1f0ff;
+  padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg1:#3b0764; --bg2:#1e1b4b; --bg3:#0f172a; --bg4:#831843;
+    --card:#1e1b2eee; --text:#f1f0ff; --sub:#b8b6d9; --accent:#c084fc; --accent2:#ff6ec4;
+    --border:#ffffff1a; --pill:#2a2645;
+  }
+}
+:root[data-theme="dark"]{
+  --bg1:#3b0764; --bg2:#1e1b4b; --bg3:#0f172a; --bg4:#831843;
+  --card:#1e1b2eee; --text:#f1f0ff; --sub:#b8b6d9; --accent:#c084fc; --accent2:#ff6ec4;
+  --border:#ffffff1a; --pill:#2a2645;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;font-family:'Inter',sans-serif;color:var(--text);}
+body{
+  background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3),var(--bg4));
+  background-size:300% 300%; animation:flow 18s ease infinite; min-height:100%;
+}
+@keyframes flow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+h1,h2,h3{font-family:'Poppins',sans-serif;margin:0;}
+header{position:sticky;top:0;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;background:var(--card);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+.logo{font-size:22px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.btn{border:none;border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:14px;transition:.15s transform;}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;}
+.btn-ghost{background:var(--pill);color:var(--text);}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px 60px;}
+.hero{text-align:center;color:#fff;padding:30px 10px 10px;}
+.hero h1{font-size:32px;text-shadow:0 2px 12px rgba(0,0,0,.25);}
+.hero p{opacity:.9;margin-top:6px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:24px;}
+.card{background:var(--card);border-radius:18px;padding:18px;border:1px solid var(--border);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.banner{height:90px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:12px;}
+.tag{display:inline-block;font-size:11px;background:var(--pill);color:var(--sub);border-radius:999px;padding:3px 9px;margin:2px 4px 0 0;}
+.price{font-weight:800;color:var(--accent);}
+.sub{color:var(--sub);font-size:13px;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--card);border-radius:18px;padding:22px;max-width:420px;width:100%;max-height:88vh;overflow-y:auto;}
+label{display:block;font-size:12px;font-weight:700;color:var(--sub);margin:12px 0 4px;}
+input,textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--pill);color:var(--text);font-family:inherit;font-size:14px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tier{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.tier.sel{border-color:var(--accent);background:var(--pill);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--card);padding:12px 20px;border-radius:12px;font-size:14px;z-index:60;opacity:0;transition:.3s;}
+.toast.show{opacity:1;}
+.themebtn{background:var(--pill);border:none;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:16px;}
+.empty{color:#fff;text-align:center;opacity:.85;padding:40px 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎟️ Vibe Tix</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="themebtn" id="themeBtn" title="Toggle theme">🌓</button>
+    <button class="btn btn-ghost" id="myTicketsBtn">My Tickets</button>
+    <button class="btn btn-primary" id="createBtn">+ Post Event</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Find your next unforgettable night</h1>
+    <p>Post events. Sell tickets. Vibe out.</p>
+  </div>
+  <div class="grid" id="eventsGrid"></div>
+</div>
+
+<!-- Create Event Modal -->
+<div class="modal-bg" id="createModal">
+  <div class="modal">
+    <h3>Post an Event</h3>
+    <label>Event Title</label><input id="f_title" placeholder="Masshouse Pres. Charly Black">
+    <label>Artist / Organizer</label><input id="f_artist" placeholder="Masshouse">
+    <div class="row2">
+      <div><label>Date</label><input id="f_date" type="date"></div>
+      <div><label>Time</label><input id="f_time" type="time"></div>
+    </div>
+    <label>Venue</label><input id="f_venue" placeholder="Ngong Racecourse, Nairobi">
+    <label>Description</label><textarea id="f_desc" rows="3" placeholder="Some songs never fade..."></textarea>
+    <label>Emoji Banner</label><input id="f_emoji" placeholder="🎶" maxlength="2">
+    <label>Ticket Tier Name</label><input id="f_tname" placeholder="General (Wave 1)">
+    <div class="row2">
+      <div><label>Price (KES)</label><input id="f_price" type="number" placeholder="3500"></div>
+      <div><label>Quantity</label><input id="f_qty" type="number" placeholder="200"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('createModal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" id="saveEventBtn">Publish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Buy Modal -->
+<div class="modal-bg" id="buyModal">
+  <div class="modal">
+    <h3 id="buyTitle">Select Tickets</h3>
+    <div id="tierList"></div>
+    <div class="row2" style="margin-top:14px;">
+      <div><label>Qty</label><input id="buyQty" type="number" value="1" min="1"></div>
+      <div><label>Total</label><input id="buyTotal" disabled></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('buyModal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" id="toCheckoutBtn">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-bg" id="payModal">
+  <div class="modal">
+    <h3>Checkout</h3>
+    <p class="sub" style="margin-top:4px;">Simulated payment — no real card is charged.</p>
+    <label>Name on Card</label><input id="p_name" placeholder="Jane Doe">
+    <label>Card Number</label><input id="p_card" placeholder="4242 4242 4242 4242" maxlength="19">
+    <div class="row2">
+      <div><label>Expiry</label><input id="p_exp" placeholder="MM/YY" maxlength="5"></div>
+      <div><label>CVV</label><input id="p_cvv" placeholder="123" maxlength="3"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('payModal')">Back</button>
+      <button class="btn btn-primary" style="flex:1" id="payBtn">Pay Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Tickets Modal -->
+<div class="modal-bg" id="ticketsModal">
+  <div class="modal">
+    <h3>My Tickets</h3>
+    <div id="myTicketsList" style="margin-top:10px;"></div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:16px;" onclick="closeModal('ticketsModal')">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let db=null, events=[], selectedEvent=null, selectedTierIdx=0;
+const seedEvents=[
+  {id:'e1',title:'Masshouse Pres. Charly Black',artist:'Masshouse',date:'2026-10-10',time:'16:00',
+   venue:'Ngong Racecourse, Nairobi',desc:'Some songs never fade. They become the soundtrack to our best memories.',
+   emoji:'🎧',tiers:[{name:'General (Wave 4)',price:3500,qty:200,sold:0},{name:'VIP (Unreserved Seating)',price:6000,qty:80,sold:0}]},
+  {id:'e2',title:'Sunset Rooftop Sessions',artist:'DJ Kae',date:'2026-10-24',time:'18:00',
+   venue:'Two Rivers Mall Rooftop, Nairobi',desc:'Deep house and golden hour views.',
+   emoji:'🌇',tiers:[{name:'Early Bird',price:1500,qty:150,sold:0},{name:'Gate',price:2500,qty:150,sold:0}]}
+];
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+async function initDB(){
+  try{ db = await claude.use('db'); }catch(e){ db=null; }
+  if(db){
+    try{
+      db.collection('events').onSnapshot(snap=>{
+        events = snap.docs.map(d=>d.data());
+        if(events.length===0){ seedEvents.forEach(ev=>db.collection('events').doc(ev.id).set(ev).catch(()=>{})); }
+        render();
+      });
+    }catch(e){ events=seedEvents; render(); }
+  } else {
+    events = JSON.parse(localStorage.getItem('vt_events')||'null') || seedEvents;
+    render();
+  }
+}
+function saveEventsLocal(){ localStorage.setItem('vt_events', JSON.stringify(events)); }
+
+async function upsertEvent(ev){
+  if(db){ try{ await db.collection('events').doc(ev.id).set(ev); return; }catch(e){} }
+  const i=events.findIndex(e=>e.id===ev.id);
+  if(i>=0) events[i]=ev; else events.push(ev);
+  saveEventsLocal(); render();
+}
+
+function render(){
+  const grid=document.getElementById('eventsGrid');
+  if(!events.length){ grid.innerHTML='<div class="empty">No events yet — be the first to post one 🎉</div>'; return; }
+  grid.innerHTML = events.map(ev=>{
+    const minPrice = Math.min(...ev.tiers.map(t=>t.price));
+    const soldOut = ev.tiers.every(t=>t.sold>=t.qty);
+    return `<div class="card">
+      <div class="banner" style="background:linear-gradient(135deg,var(--accent),var(--accent2));">${ev.emoji||'🎫'}</div>
+      <h3>${esc(ev.title)}</h3>
+      <div class="sub">by ${esc(ev.artist)}</div>
+      <div class="sub" style="margin-top:6px;">📅 ${fmtDate(ev.date)} ${ev.time?('· '+ev.time):''}</div>
+      <div class="sub">📍 ${esc(ev.venue)}</div>
+      <div style="margin-top:8px;"><span class="tag">from</span> <span class="price">KES ${minPrice.toLocaleString()}</span></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:12px;" ${soldOut?'disabled':''} onclick="openBuy('${ev.id}')">${soldOut?'Sold Out':'Get Tickets'}</button>
+    </div>`;
+  }).join('');
+}
+function esc(s){return (s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+function fmtDate(d){ if(!d) return ''; const dt=new Date(d+'T00:00'); return dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }
+
+function openBuy(id){
+  selectedEvent = events.find(e=>e.id===id);
+  selectedTierIdx = 0;
+  document.getElementById('buyTitle').textContent = selectedEvent.title;
+  renderTiers();
+  document.getElementById('buyQty').value=1;
+  updateTotal();
+  openModal('buyModal');
+}
+function renderTiers(){
+  document.getElementById('tierList').innerHTML = selectedEvent.tiers.map((t,i)=>{
+    const left = t.qty - t.sold;
+    return `<div class="tier ${i===selectedTierIdx?'sel':''}" onclick="selectTier(${i})">
+      <div><b>${esc(t.name)}</b><div class="sub">${left>0?left+' left':'Sold out'}</div></div>
+      <div class="price">KES ${t.price.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+function selectTier(i){ selectedTierIdx=i; renderTiers(); updateTotal(); }
+document.getElementById('buyQty').addEventListener('input', updateTotal);
+function updateTotal(){
+  const t=selectedEvent.tiers[selectedTierIdx];
+  const q=Math.max(1,parseInt(document.getElementById('buyQty').value||1));
+  document.getElementById('buyTotal').value = 'KES ' + (t.price*q).toLocaleString();
+}
+
+document.getElementById('createBtn').onclick=()=>openModal('createModal');
+document.getElementById('saveEventBtn').onclick=async ()=>{
+  const title=document.getElementById('f_title').value.trim();
+  const tname=document.getElementById('f_tname').value.trim()||'General';
+  const price=parseFloat(document.getElementById('f_price').value)||0;
+  const qty=parseInt(document.getElementById('f_qty').value)||0;
+  if(!title||!qty){ toast('Please add a title and ticket quantity'); return; }
+  const ev={
+    id:'e'+Date.now(), title, artist:document.getElementById('f_artist').value.trim()||'Independent',
+    date:document.getElementById('f_date').value, time:document.getElementById('f_time').value,
+    venue:document.getElementById('f_venue').value.trim(), desc:document.getElementById('f_desc').value.trim(),
+    emoji:document.getElementById('f_emoji').value.trim()||'🎫',
+    tiers:[{name:tname, price, qty, sold:0}]
+  };
+  await upsertEvent(ev);
+  closeModal('createModal');
+  toast('Event published! 🎉');
+  ['f_title','f_artist','f_date','f_time','f_venue','f_desc','f_emoji','f_tname','f_price','f_qty'].forEach(id=>document.getElementById(id).value='');
+};
+
+document.getElementById('toCheckoutBtn').onclick=()=>{ closeModal('buyModal'); openModal('payModal'); };
+document.getElementById('p_card').addEventListener('input',e=>{
+  e.target.value=e.target.value.replace(/\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim();
+});
+document.getElementById('p_exp').addEventListener('input',e=>{
+  let v=e.target.value.replace(/\D/g,'').slice(0,4);
+  if(v.length>2) v=v.slice(0,2)+'/'+v.slice(2);
+  e.target.value=v;
+});
+
+document.getElementById('payBtn').onclick=async ()=>{
+  const name=document.getElementById('p_name').value.trim();
+  const card=document.getElementById('p_card').value.replace(/\s/g,'');
+  const exp=document.getElementById('p_exp').value;
+  const cvv=document.getElementById('p_cvv').value;
+  if(!name||card.length<12||!exp||cvv.length<3){ toast('Fill in all payment fields'); return; }
+  const t=selectedEvent.tiers[selectedTierIdx];
+  const q=Math.max(1,parseInt(document.getElementById('buyQty').value||1));
+  t.sold += q;
+  await upsertEvent(selectedEvent);
+  const receipt={id:'tk'+Date.now(),event:selectedEvent.title,tier:t.name,qty:q,total:t.price*q,date:new Date().toISOString()};
+  const mine = JSON.parse(localStorage.getItem('vt_mytickets')||'[]'); mine.push(receipt);
+  localStorage.setItem('vt_mytickets', JSON.stringify(mine));
+  closeModal('payModal');
+  ['p_name','p_card','p_exp','p_cvv'].forEach(id=>document.getElementById(id).value='');
+  toast('Payment successful — enjoy the show! 🎫');
+};
+
+document.getElementById('myTicketsBtn').onclick=()=>{
+  const mine = JSON.parse(localStorage.getItem('vt_mytickets')||'[]');
+  const list=document.getElementById('myTicketsList');
+  list.innerHTML = mine.length ? mine.reverse().map(r=>`
+    <div class="tier" style="cursor:default;">
+      <div><b>${esc(r.event)}</b><div class="sub">${esc(r.tier)} × ${r.qty}</div></div>
+      <div class="price">KES ${r.total.toLocaleString()}</div>
+    </div>`).join('') : '<p class="sub">No tickets purchased yet.</p>';
+  openModal('ticketsModal');
+};
+
+document.getElementById('themeBtn').onclick=()=>{
+  const root=document.documentElement;
+  const cur=root.getAttribute('data-theme');
+  root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+};
+
+initDB();
+</script>
+</body>
+</html>
